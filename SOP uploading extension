@@ -1,0 +1,10 @@
+SOP Uploading Extension (Microsoft Edge)
+
+1. go to edge://extensions
+2. click on the 3 bars in the top left corner and find 'Developer Mode' (bottom left corner)
+3. turn on 'Developer Mode' by clicking the small toggle nxt to the words 'Developer Mode'
+4. to the upper right, where the extensions are listed, there should be three icons. Click the icon furthest to the left to upload files or 'load'
+5. find the folder with the accom_extension files in file explorer and select the folder
+6. make sure the extension is on by clicking the small puzzle piece in the top right corner of the window, to the left of the profile icon
+
+The only things you need to get this extension into your browser is to have the files in your Documents or saved somewhere in your files. 
