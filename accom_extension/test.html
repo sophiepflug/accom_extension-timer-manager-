@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Accommodate Extension Test</title>
+
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      padding: 40px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 700px;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 14px;
+      border: 1px solid #d1d5db;
+      text-align: left;
+      font-size: 16px;
+    }
+
+    th {
+      background: #1e3a8a;
+      color: white;
+    }
+
+    td[contenteditable="true"] {
+      background: #fef3c7;
+      cursor: text;
+    }
+
+    td[contenteditable="true"]:focus {
+      outline: 2px solid #2563eb;
+      background: #ffffff;
+    }
+
+    .danger {
+      background: #fee2e2;
+    }
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .status {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .instructions {
+      margin-bottom: 20px;
+      padding: 16px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <h1>⏰ Accommodate Extension Test Environment</h1>
+
+  <div class="instructions">
+    <strong>Testing Instructions:</strong>
+    <ul>
+      <li>Click directly into timer cells to edit them manually.</li>
+      <li>Type values like: <code>5 min</code></li>
+      <li>Your extension should detect when elapsed ≥ allowed.</li>
+      <li>Yellow cells are editable.</li>
+    </ul>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Elapsed</th>
+        <th>Allowed</th>
+      </tr>
+    </thead>
+
+    <tbody id="timerTable">
+
+      <tr>
+        <td>John Smith</td>
+
+        <td
+          class="elapsed"
+          contenteditable="true"
+        >
+          0 min
+        </td>
+
+        <td
+          class="allowed"
+          contenteditable="true"
+        >
+          5 min
+        </td>
+      </tr>
+
+      <tr>
+        <td>Sarah Johnson</td>
+
+        <td
+          class="elapsed"
+          contenteditable="true"
+        >
+          0 min
+        </td>
+
+        <td
+          class="allowed"
+          contenteditable="true"
+        >
+          8 min
+        </td>
+      </tr>
+
+      <tr>
+        <td>Michael Lee</td>
+
+        <td
+          class="elapsed"
+          contenteditable="true"
+        >
+          0 min
+        </td>
+
+        <td
+          class="allowed"
+          contenteditable="true"
+        >
+          12 min
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <div class="controls">
+
+    <button onclick="startTimers()">
+      ▶ Start Timers
+    </button>
+
+    <button onclick="pauseTimers()">
+      ⏸ Pause
+    </button>
+
+    <button onclick="resetTimers()">
+      🔄 Reset
+    </button>
+
+    <button onclick="addStudent()">
+      ➕ Add Student
+    </button>
+
+  </div>
+
+  <div class="status" id="status">
+    Timers stopped
+  </div>
+
+  <script>
+
+    let timerInterval = null;
+
+    function parseMinutes(text) {
+
+      const match =
+        text.match(/(\d+)/);
+
+      return match
+        ? parseInt(match[1])
+        : 0;
+
+    }
+
+    function startTimers() {
+
+        if (timerInterval) return;
+
+        document.getElementById('status').innerText =
+            'Timers running...';
+
+        timerInterval = setInterval(() => {
+
+        const rows =
+        document.querySelectorAll('#timerTable tr');
+
+        let activeTimers = 0;
+
+        rows.forEach((row) => {
+
+        const elapsedCell =
+            row.querySelector('.elapsed');
+
+        const allowedCell =
+            row.querySelector('.allowed');
+
+        let elapsed =
+            parseMinutes(elapsedCell.innerText);
+
+        const allowed =
+            parseMinutes(allowedCell.innerText);
+
+        // STOP if timer already complete
+        if (elapsed >= allowed) {
+
+            elapsedCell.innerText =
+            allowed + ' min';
+
+            row.classList.add('danger');
+
+            return;
+        }
+
+        // Continue counting
+        elapsed++;
+
+        elapsedCell.innerText =
+            elapsed + ' min';
+
+        console.log(
+            row.cells[0].innerText,
+            elapsed,
+            '/',
+            allowed
+        );
+
+        // Mark complete
+        if (elapsed >= allowed) {
+
+            row.classList.add('danger');
+
+        } else {
+
+            activeTimers++;
+
+        }
+
+    });
+
+    // Stop master interval if all timers complete
+    if (activeTimers === 0) {
+
+      clearInterval(timerInterval);
+
+      timerInterval = null;
+
+      document.getElementById('status').innerText =
+        'All timers complete';
+
+      console.log('All timers finished');
+
+    }
+
+  }, 1000);
+
+}
+
+    function pauseTimers() {
+
+      clearInterval(timerInterval);
+
+      timerInterval = null;
+
+      document.getElementById('status').innerText =
+        'Timers paused';
+
+    }
+
+    function resetTimers() {
+
+      pauseTimers();
+
+      const rows =
+        document.querySelectorAll('#timerTable tr');
+
+      rows.forEach((row) => {
+
+        row.classList.remove('danger');
+
+        row.querySelector('.elapsed').innerText =
+          '0 min';
+
+      });
+
+      document.getElementById('status').innerText =
+        'Timers reset';
+
+    }
+
+    function addStudent() {
+
+      const tbody =
+        document.getElementById('timerTable');
+
+      const names = [
+        'Emma Davis',
+        'Chris Brown',
+        'Olivia Miller',
+        'Daniel Garcia',
+        'Sophia Wilson'
+      ];
+
+      const randomName =
+        names[Math.floor(Math.random() * names.length)];
+
+      const allowed =
+        Math.floor(Math.random() * 15) + 5;
+
+      const row =
+        document.createElement('tr');
+
+      row.innerHTML = `
+        <td>${randomName}</td>
+
+        <td
+          class="elapsed"
+          contenteditable="true"
+        >
+          0 min
+        </td>
+
+        <td
+          class="allowed"
+          contenteditable="true"
+        >
+          ${allowed} min
+        </td>
+      `;
+
+      tbody.appendChild(row);
+
+      console.log(
+        'Added:',
+        randomName
+      );
+
+    }
+
+  </script>
+
+</body>
+</html>
